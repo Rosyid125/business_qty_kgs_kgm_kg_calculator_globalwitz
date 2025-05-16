@@ -65,7 +65,7 @@ selectedSheetIndexes.forEach((sheetIndex) => {
           case "MTR":
             result = (unitPrice * 1000) / (width * gsm);
             break;
-          case "MTRK":
+          case "MTK":
           case "MTR2":
             result = (unitPrice * 1000) / gsm;
             break;
