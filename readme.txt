@@ -4,6 +4,7 @@
 
 Mtr to Kg = "UNIT PRICE(USD)" x 1000 / "Width (cm)" x "GSM"
 Mtr2 to Kg = "UNIT PRICE(USD)" x 1000 / "GSM"
-YD to Kg = ( "UNIT PRICE(USD)" X 1000) / "Width (cm)" x "GSM"
+YD to Kg = ( "UNIT PRICE(USD)" / 0.9144 X 1000) / "Width (cm)" x "GSM"
+Rol/Roll to kg = "BUSINESS QUANTITY" / "GSM" 
 GRM to KG = "BUSINESS QUANTITY" X 1000
 KG to KG = "BUSINESS QUANTITY"

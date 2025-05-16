@@ -66,19 +66,25 @@ selectedSheetIndexes.forEach((sheetIndex) => {
             result = (unitPrice * 1000) / (width * gsm);
             break;
           case "MTK":
+            result = (unitPrice * 1000) / gsm;
+            break;
           case "MTR2":
             result = (unitPrice * 1000) / gsm;
             break;
           case "YD":
-            result = (unitPrice * 1000) / (width * gsm);
+            result = ((unitPrice / 0.9144) * 1000) / (width * gsm);
             break;
+          case "GR":
           case "GRM":
             result = businessQuantity / 1000;
             break;
           case "KG":
+          case "KGM":
             result = businessQuantity;
             break;
           case "ROL":
+            result = businessQuantity / gsm;
+            break;
           case "ROLL":
             result = businessQuantity / gsm;
             break;
