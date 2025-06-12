@@ -163,44 +163,40 @@ selectedSheetIndexes.forEach((sheetIndex) => {
   } else if (choice === "3") {
     data.forEach((row) => {
       const unitOfWeight = row["UNIT OF WEIGHT"] || "-";
-      const businessQuantity = parseFloat(row["BUSINESS QUANTITY"]) || "-";
-      const unitPrice = parseFloat(row["UNIT PRICE(USD)"]) || "-";
-      const width = parseFloat(row["Width (cm)"]) || "-";
-      const gsm = parseFloat(row["GSM"]) || "-";
+      const businessQuantity = parseFloat(row["BUSINESS QUANTITY"]) || 0;
+      const unitPrice = parseFloat(row["UNIT PRICE(USD)"]) || 0;
+      const width = parseFloat(row["WIDTH"]) || 0;
+      const gsm = parseFloat(row["GSM"]) || 0;
       let result = "-";
 
-      if (businessQuantity !== "-" && unitPrice !== "-" && width !== "-" && gsm !== "-") {
+      // Handle GRM/GR first - only needs businessQuantity
+      if ((unitOfWeight.toUpperCase() === "GRM" || unitOfWeight.toUpperCase() === "GR") && businessQuantity > 0) {
+        result = businessQuantity / 1000;
+      }
+      // Handle KG/KGM - only needs businessQuantity  
+      else if ((unitOfWeight.toUpperCase() === "KG" || unitOfWeight.toUpperCase() === "KGM") && businessQuantity > 0) {
+        result = businessQuantity;
+      }
+      // Handle other units that need all parameters
+      else if (businessQuantity > 0 && unitPrice > 0 && width > 0 && gsm > 0) {
         switch (unitOfWeight.toUpperCase()) {
           case "MTR":
             result = (unitPrice * 1000) / (width * gsm);
             break;
           case "MTK":
-            result = (unitPrice * 1000) / gsm;
-            break;
           case "MTR2":
             result = (unitPrice * 1000) / gsm;
             break;
           case "YD":
             result = ((unitPrice / 0.9144) * 1000) / (width * gsm);
             break;
-          case "GR":
-          case "GRM":
-            result = businessQuantity / 1000;
-            break;
-          case "KG":
-          case "KGM":
-            result = businessQuantity;
-            break;
           case "ROL":
-            result = businessQuantity / gsm;
-            break;
           case "ROLL":
             result = businessQuantity / gsm;
             break;
-          default:
-            result = "-";
         }
       }
+      
       row["BUSINESS QUANTITY (KG)"] = result;
     });
 
