@@ -1,4 +1,4 @@
 node_modules
 package-lock.json
-input.xlsx
-output.xlsx
+input/
+output/
