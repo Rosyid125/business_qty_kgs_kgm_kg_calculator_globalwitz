@@ -122,9 +122,13 @@ function convertBusinessQuantityToKG(data, columns) {
     if ((unitOfWeight.toUpperCase() === "GRM" || unitOfWeight.toUpperCase() === "GR") && businessQuantity > 0) {
       result = businessQuantity * 1000; // GRM to KG = Business Quantity * 1000
     }
-    // Handle KG/KGM/KGS - only needs businessQuantity  
-    else if ((unitOfWeight.toUpperCase() === "KG" || unitOfWeight.toUpperCase() === "KGM" || unitOfWeight.toUpperCase() === "KGS") && businessQuantity > 0) {
+    // Handle KG/KGM/KGS/K - only needs businessQuantity  
+    else if ((unitOfWeight.toUpperCase() === "KG" || unitOfWeight.toUpperCase() === "KGM" || unitOfWeight.toUpperCase() === "KGS" || unitOfWeight.toUpperCase() === "K") && businessQuantity > 0) {
       result = businessQuantity;
+    }
+    // Handle LBS (pounds) - convert to KG using formula: kg = lbs * 0.453592
+    else if (unitOfWeight.toUpperCase() === "LBS" && businessQuantity > 0) {
+      result = businessQuantity * 0.453592; // LBS to KG = Business Quantity * 0.453592
     }
     // Handle other units that need all parameters
     else if (businessQuantity > 0 && unitPrice > 0 && width > 0 && gsm > 0) {
