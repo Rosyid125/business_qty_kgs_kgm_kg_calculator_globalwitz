@@ -1,7 +1,7 @@
 @echo off
 echo ===============================================
-echo    Building Production Version
-echo    Business Quantity to KG Converter
+echo    Building Business Quantity Converter
+echo                 (OneDir Mode)
 echo ===============================================
 echo.
 
@@ -15,9 +15,9 @@ if errorlevel 1 (
 )
 
 echo.
-echo [2/4] Building standalone executable...
+echo [2/4] Building standalone executable (OneDir)...
 pyinstaller ^
-    --onefile ^
+    --onedir ^
     --windowed ^
     --name="BusinessQuantityConverter" ^
     --add-data="README.md;." ^
@@ -39,14 +39,14 @@ mkdir Production_Release\output
 
 echo.
 echo [4/4] Copying files and creating user guide...
-copy dist\BusinessQuantityConverter.exe Production_Release\
+xcopy /e /i /h /y dist\BusinessQuantityConverter Production_Release\BusinessQuantityConverter
 copy README.md Production_Release\ 2>nul
 
 echo # Business Quantity Converter - User Guide > Production_Release\USER_GUIDE.txt
 echo. >> Production_Release\USER_GUIDE.txt
 echo HOW TO USE: >> Production_Release\USER_GUIDE.txt
 echo 1. Put your Excel files in the 'input' folder >> Production_Release\USER_GUIDE.txt
-echo 2. Double-click BusinessQuantityConverter.exe >> Production_Release\USER_GUIDE.txt
+echo 2. Double-click BusinessQuantityConverter.exe in the BusinessQuantityConverter folder >> Production_Release\USER_GUIDE.txt
 echo 3. Follow the GUI instructions >> Production_Release\USER_GUIDE.txt
 echo 4. Converted files will appear in the 'output' folder >> Production_Release\USER_GUIDE.txt
 echo. >> Production_Release\USER_GUIDE.txt
@@ -60,11 +60,11 @@ echo - Report issues to your IT administrator >> Production_Release\USER_GUIDE.t
 
 echo.
 echo ===============================================
-echo    Production Build Complete!
+echo    OneDir Build Complete!
 echo ===============================================
 echo.
 echo 📁 Files created in Production_Release folder:
-echo ✅ BusinessQuantityConverter.exe - Main application
+echo ✅ BusinessQuantityConverter folder - Main application and dependencies
 echo ✅ input folder - Put Excel files here  
 echo ✅ output folder - Converted files appear here
 echo ✅ USER_GUIDE.txt - Simple instructions
