@@ -1,84 +1,86 @@
 @echo off
+setlocal EnableDelayedExpansion
+
 echo ===============================================
 echo    Building Business Quantity Converter
-echo                 (OneFile Mode)
+echo              (OneFile Mode)
 echo ===============================================
 echo.
 
-echo [1/4] Installing PyInstaller...
-pip install pyinstaller
+REM [1/4] Install PyInstaller if not present
+echo Checking PyInstaller...
+python -m pip show pyinstaller >nul 2>&1
 if errorlevel 1 (
-    echo ❌ Failed to install PyInstaller
-    echo Please check your internet connection and try again
+    echo Installing PyInstaller...
+    python -m pip install pyinstaller
+    if errorlevel 1 (
+        echo ❌ Failed to install PyInstaller!
+        pause
+        exit /b 1
+    )
+)
+
+REM [2/4] Clean old builds
+echo Cleaning previous build...
+if exist build rmdir /s /q build
+if exist dist rmdir /s /q dist
+if exist *.spec del /q *.spec
+
+REM [3/4] Build with PyInstaller
+echo Building standalone executable (OneFile)...
+pyinstaller --onefile --windowed --name="BusinessQuantityConverter" --add-data="README.md;." business_quantity_converter.py
+
+if errorlevel 1 (
+    echo ❌ Build failed!
+    echo Please check if business_quantity_converter.py exists.
     pause
     exit /b 1
 )
 
-echo.
-echo [2/4] Building standalone executable (OneFile)...
-pyinstaller ^
-    --onefile ^
-    --windowed ^
-    --name="BusinessQuantityConverter" ^
-    --add-data="README.md;." ^
-    business_quantity_converter.py
-
-if errorlevel 1 (
-    echo ❌ Build failed
-    echo Please check if business_quantity_converter.py exists
-    pause
-    exit /b 1
-)
-
-echo.
-echo [3/4] Creating production folder structure...
-if exist "Production_Release" rmdir /s /q Production_Release
+REM [4/4] Setup Production_Release folder
+echo Creating Production_Release folder...
+if exist Production_Release rmdir /s /q Production_Release
 mkdir Production_Release
 mkdir Production_Release\input
 mkdir Production_Release\output
 
-echo.
-echo [4/4] Copying files and creating user guide...
-copy dist\BusinessQuantityConverter.exe Production_Release\
-copy README.md Production_Release\ 2>nul
+echo Copying executable and files...
+copy dist\BusinessQuantityConverter.exe Production_Release\ >nul
+if exist README.md copy README.md Production_Release\ >nul
 
-echo # Business Quantity Converter - User Guide > Production_Release\USER_GUIDE.txt
-echo. >> Production_Release\USER_GUIDE.txt
-echo HOW TO USE: >> Production_Release\USER_GUIDE.txt
-echo 1. Put your Excel files in the 'input' folder >> Production_Release\USER_GUIDE.txt
-echo 2. Double-click BusinessQuantityConverter.exe >> Production_Release\USER_GUIDE.txt
-echo 3. Follow the GUI instructions >> Production_Release\USER_GUIDE.txt
-echo 4. Converted files will appear in the 'output' folder >> Production_Release\USER_GUIDE.txt
-echo. >> Production_Release\USER_GUIDE.txt
-echo SYSTEM REQUIREMENTS: >> Production_Release\USER_GUIDE.txt
-echo - Windows 7 or later >> Production_Release\USER_GUIDE.txt
-echo - No additional software needed >> Production_Release\USER_GUIDE.txt
-echo. >> Production_Release\USER_GUIDE.txt
-echo SUPPORT: >> Production_Release\USER_GUIDE.txt
-echo - Check README.md for detailed instructions >> Production_Release\USER_GUIDE.txt
-echo - Report issues to your IT administrator >> Production_Release\USER_GUIDE.txt
+echo Creating USER_GUIDE.txt...
+(
+    echo # Business Quantity Converter - User Guide
+    echo.
+    echo HOW TO USE:
+    echo 1. Put your Excel files in the 'input' folder
+    echo 2. Double-click BusinessQuantityConverter.exe
+    echo 3. Follow the instructions on screen
+    echo 4. Converted files will appear in 'output' folder
+    echo.
+    echo SYSTEM REQUIREMENTS:
+    echo - Windows 7 or later
+    echo - No need to install Python or any dependencies
+    echo.
+    echo SUPPORT:
+    echo - See README.md for details
+    echo - Contact IT administrator if you experience issues
+) > Production_Release\USER_GUIDE.txt
 
 echo.
 echo ===============================================
-echo    OneFile Build Complete!
+echo ✅ OneFile Build Complete!
 echo ===============================================
 echo.
-echo 📁 Files created in Production_Release folder:
-echo ✅ BusinessQuantityConverter.exe - Single executable file
-echo ✅ input folder - Put Excel files here  
-echo ✅ output folder - Converted files appear here
-echo ✅ USER_GUIDE.txt - Simple instructions
-echo ✅ README.md - Detailed documentation
+echo 📁 Output: Production_Release
+echo   - BusinessQuantityConverter.exe
+echo   - input\
+echo   - output\
+echo   - USER_GUIDE.txt
+echo   - README.md
 echo.
-echo 🚀 Ready for distribution!
+echo 🚀 Ready to distribute!
 echo.
-echo You can now:
-echo - ZIP the Production_Release folder
-echo - Share it with users
-echo - Users just need to extract and run the .exe
-echo.
-pause
 
-echo.
-echo Opening Production_Release folder...
 start "" "Production_Release"
+pause
