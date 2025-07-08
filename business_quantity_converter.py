@@ -28,7 +28,6 @@ class BusinessQuantityConverter:
         os.makedirs(self.output_folder, exist_ok=True)
         
         self.setup_ui()
-        self.refresh_files()
     
     def setup_ui(self):
         # Main frame
@@ -104,6 +103,11 @@ class BusinessQuantityConverter:
                                      command=self.start_conversion, state="disabled")
         self.process_btn.pack(side=tk.LEFT, padx=(0, 10))
         
+        # Help button for supported units
+        help_btn = ttk.Button(process_frame, text="Show Supported Units", 
+                             command=self.show_supported_units)
+        help_btn.pack(side=tk.LEFT, padx=(0, 10))
+        
         self.progress = ttk.Progressbar(process_frame, mode='indeterminate')
         self.progress.pack(side=tk.LEFT, fill=tk.X, expand=True)
         
@@ -116,6 +120,13 @@ class BusinessQuantityConverter:
         
         self.log_text = scrolledtext.ScrolledText(log_frame, height=15, state=tk.DISABLED)
         self.log_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        # Initial setup log
+        self.log("📋 Business Quantity to KG Converter v2.0 initialized")
+        self.log("📁 Place your Excel files in the 'input' folder")
+        self.log("🎯 NEW: Robust unit recognition with 50+ unit variants!")
+        self.log("💡 Click 'Show Supported Units' to see all available units")
+        self.refresh_files()
     
     def log(self, message):
         """Add message to log"""
@@ -124,6 +135,173 @@ class BusinessQuantityConverter:
         self.log_text.see(tk.END)
         self.log_text.config(state=tk.DISABLED)
         self.root.update_idletasks()
+    
+    def show_supported_units(self):
+        """Show window with all supported units"""
+        units_window = tk.Toplevel(self.root)
+        units_window.title("Supported Units")
+        units_window.geometry("800x600")
+        units_window.resizable(True, True)
+        
+        # Create notebook for tabs
+        notebook = ttk.Notebook(units_window)
+        notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Direct conversion tab
+        direct_frame = ttk.Frame(notebook)
+        notebook.add(direct_frame, text="Direct Conversion")
+        
+        direct_text = scrolledtext.ScrolledText(direct_frame, wrap=tk.WORD)
+        direct_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        direct_units = """DIRECT CONVERSION UNITS (No additional parameters needed)
+
+📏 KILOGRAM GROUP (Factor: 1.0):
+KG, KGS, KGM, K, KILO, KILOS, KILOGRAM, KILOGRAMME
+
+📏 GRAM GROUP (Factor: 0.001):
+G, GR, GRM, GRAM, GRAMS, GRAMME, GM, GMS
+
+📏 POUND GROUP (Factor: 0.453592):
+LB, LBS, POUND, POUNDS, PND, PNDS, LBM
+
+📏 OUNCE GROUP (Factor: 0.0283495):
+OZ, OUNCE, OUNCES, ONZ
+
+📏 TON GROUP:
+• TON, TONS, TONNE, TONNES, T (Factor: 1000.0)
+• MT, METRICTON, METRICTONS (Factor: 1000.0)
+• SHORTTON (Factor: 907.185)
+• LONGTON (Factor: 1016.05)
+
+📏 IMPERIAL UNITS:
+• STONE, STONES, ST (Factor: 6.35029)
+• QUINTAL, QUINTALS, Q, QTL (Factor: 100.0)
+
+📏 PRECISION UNITS:
+• GRAIN, GRAINS, GRN (Factor: 0.00006479891)
+• CARAT, CARATS, CT, CAR (Factor: 0.0002)
+• MG, MILLIGRAM, MILLIGRAMS (Factor: 0.000001)
+• UG, MCG, MICROGRAM, MICROGRAMS (Factor: 0.000000001)
+
+📏 ADDITIONAL IMPERIAL:
+• DRAM (Factor: 0.0017718)
+• SCRUPLE (Factor: 0.001296)
+• PENNYWEIGHT (Factor: 0.001555)
+• SLUG (Factor: 14.5939)
+• HUNDREDWEIGHT (Factor: 50.8023)
+• USHUNDREDWEIGHT (Factor: 45.3592)
+
+Note: All units are case-insensitive and ignore spaces/punctuation.
+Example: "kg" = "KG" = "k g" = "k.g" = "kilo"
+"""
+        direct_text.insert(tk.END, direct_units)
+        direct_text.config(state=tk.DISABLED)
+        
+        # Complex conversion tab
+        complex_frame = ttk.Frame(notebook)
+        notebook.add(complex_frame, text="Complex Conversion")
+        
+        complex_text = scrolledtext.ScrolledText(complex_frame, wrap=tk.WORD)
+        complex_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        complex_units = """COMPLEX CONVERSION UNITS (Require additional parameters)
+
+📐 LINEAR UNITS (Need: Unit Price, Width, GSM):
+MTR, METER, METRE, M, MTS
+Formula: (Unit Price × 1000) ÷ (Width × GSM)
+
+📐 YARD UNITS (Need: Unit Price, Width, GSM):
+YD, YARD, YARDS, YDS
+Formula: ((Unit Price ÷ 0.9144) × 1000) ÷ (Width × GSM)
+
+📐 AREA UNITS (Need: Unit Price, GSM):
+MTK, MTR2, M2, SQM, SQMETER, SQUAREMETER
+Formula: (Unit Price × 1000) ÷ GSM
+
+📐 ROLL UNITS (Need: Business Quantity, GSM):
+ROL, ROLL, ROLLS
+Formula: Business Quantity ÷ GSM
+
+REQUIRED COLUMNS FOR COMPLEX CONVERSION:
+• Unit Price (USD): Required for MTR, YD, MTK calculations
+• Width: Required for MTR and YD calculations  
+• GSM: Required for all complex conversions
+• Business Quantity: Always required
+
+CONVERSION PRIORITY:
+1. Try direct conversion first (if unit is in direct list)
+2. If not direct, try complex conversion (if required params available)
+3. If neither works, mark as unconvertible
+
+TIPS:
+• Make sure all required columns are mapped correctly
+• Check that numeric values are valid (not text or empty)
+• Review conversion statistics in the log for success rates
+"""
+        complex_text.insert(tk.END, complex_units)
+        complex_text.config(state=tk.DISABLED)
+        
+        # Examples tab
+        examples_frame = ttk.Frame(notebook)
+        notebook.add(examples_frame, text="Examples")
+        
+        examples_text = scrolledtext.ScrolledText(examples_frame, wrap=tk.WORD)
+        examples_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        examples_content = """CONVERSION EXAMPLES
+
+✅ DIRECT CONVERSIONS:
+• 100 KG → 100 KG (no change)
+• 1000 G → 1 KG (1000 × 0.001)
+• 10 LBS → 4.53592 KG (10 × 0.453592)
+• 16 OZ → 0.453592 KG (16 × 0.0283495)
+• 1 TON → 1000 KG (1 × 1000)
+
+✅ COMPLEX CONVERSIONS:
+Example data for MTR conversion:
+• Business Quantity: 100 MTR
+• Unit Price: $50 USD
+• Width: 150 cm
+• GSM: 200
+• Result: (50 × 1000) ÷ (150 × 200) = 1.67 KG
+
+Example data for MTK conversion:
+• Business Quantity: 10 MTK
+• Unit Price: $30 USD
+• GSM: 300
+• Result: (30 × 1000) ÷ 300 = 100 KG
+
+Example data for ROLL conversion:
+• Business Quantity: 5 ROLL
+• GSM: 250
+• Result: 5 ÷ 250 = 0.02 KG
+
+🔧 UNIT RECOGNITION EXAMPLES:
+Input → Recognized As:
+• "kg" → KG
+• "kilograms" → KG
+• "lb" → LBS
+• "pounds" → LBS
+• "g" → G
+• "grams" → G
+• "oz" → OZ
+• "ounces" → OZ
+• "mtr" → MTR
+• "meters" → MTR
+
+❌ COMMON ISSUES:
+• Empty business quantity → Result: "-"
+• Invalid unit → Result: "-"
+• Missing required parameters for complex units → Result: "-"
+• Non-numeric values → Result: "-"
+"""
+        examples_text.insert(tk.END, examples_content)
+        examples_text.config(state=tk.DISABLED)
+        
+        # Close button
+        close_btn = ttk.Button(units_window, text="Close", command=units_window.destroy)
+        close_btn.pack(side=tk.BOTTOM, pady=10)
     
     def refresh_files(self):
         """Refresh the list of Excel files"""
@@ -316,8 +494,108 @@ class BusinessQuantityConverter:
         self.progress.stop()
         self.process_btn.config(state="normal")
     
+    def normalize_unit(self, unit_string):
+        """Normalize unit string to standard format"""
+        if not unit_string or pd.isna(unit_string):
+            return ''
+        
+        # Convert to uppercase and remove spaces/punctuation
+        unit = str(unit_string).upper().strip().replace(' ', '').replace('.', '').replace('-', '')
+        
+        # Unit mapping dictionary - maps various spellings to standard units
+        unit_mappings = {
+            # Kilogram variants
+            'KG': 'KG', 'KGS': 'KG', 'KGM': 'KG', 'K': 'KG', 'KILO': 'KG', 'KILOS': 'KG',
+            'KILOGRAM': 'KG', 'KILOGRAMS': 'KG', 'KILOGRAMME': 'KG', 'KILOGRAMMES': 'KG',
+            
+            # Gram variants
+            'G': 'G', 'GR': 'G', 'GRM': 'G', 'GRAM': 'G', 'GRAMS': 'G', 'GRAMME': 'G', 'GRAMMES': 'G',
+            'GMS': 'G', 'GM': 'G',
+            
+            # Pound variants
+            'LB': 'LBS', 'LBS': 'LBS', 'POUND': 'LBS', 'POUNDS': 'LBS', 'PND': 'LBS', 'PNDS': 'LBS',
+            'LBM': 'LBS', 'LBMASS': 'LBS',
+            
+            # Ounce variants
+            'OZ': 'OZ', 'OUNCE': 'OZ', 'OUNCES': 'OZ', 'ONZ': 'OZ',
+            
+            # Ton variants
+            'TON': 'TON', 'TONS': 'TON', 'TONNE': 'TON', 'TONNES': 'TON', 'T': 'TON',
+            'MT': 'MT', 'METRICTON': 'MT', 'METRICTONS': 'MT',
+            
+            # Stone variants
+            'ST': 'STONE', 'STONE': 'STONE', 'STONES': 'STONE',
+            
+            # Quintal variants
+            'Q': 'QUINTAL', 'QTL': 'QUINTAL', 'QUINTAL': 'QUINTAL', 'QUINTALS': 'QUINTAL',
+            
+            # Grain variants
+            'GRN': 'GRAIN', 'GRAIN': 'GRAIN', 'GRAINS': 'GRAIN',
+            
+            # Carat variants
+            'CT': 'CARAT', 'CARAT': 'CARAT', 'CARATS': 'CARAT', 'CAR': 'CARAT',
+            
+            # Milligram variants
+            'MG': 'MG', 'MILLIGRAM': 'MG', 'MILLIGRAMS': 'MG', 'MILLIGRAMME': 'MG',
+            
+            # Microgram variants
+            'UG': 'UG', 'MCG': 'UG', 'MICROGRAM': 'UG', 'MICROGRAMS': 'UG',
+            
+            # Complex units (require additional parameters)
+            'MTR': 'MTR', 'METER': 'MTR', 'METRE': 'MTR', 'METERS': 'MTR', 'METRES': 'MTR',
+            'M': 'MTR', 'MTS': 'MTR',
+            
+            'MTK': 'MTK', 'MTR2': 'MTK', 'M2': 'MTK', 'SQM': 'MTK', 'SQMETER': 'MTK',
+            'SQUAREMETER': 'MTK', 'SQUAREMETERS': 'MTK',
+            
+            'YD': 'YD', 'YARD': 'YD', 'YARDS': 'YD', 'YDS': 'YD',
+            
+            'ROL': 'ROLL', 'ROLL': 'ROLL', 'ROLLS': 'ROLL',
+            
+            # Feet variants
+            'FT': 'FT', 'FOOT': 'FT', 'FEET': 'FT',
+            
+            # Inch variants
+            'IN': 'IN', 'INCH': 'IN', 'INCHES': 'IN'
+        }
+        
+        return unit_mappings.get(unit, unit)
+    
+    def get_conversion_factor(self, unit):
+        """Get conversion factor to convert unit to KG"""
+        # Conversion factors to KG
+        conversion_factors = {
+            # Direct conversions (no additional parameters needed)
+            'KG': 1.0,                    # Kilogram (base unit)
+            'G': 0.001,                   # Gram
+            'LBS': 0.453592,              # Pound
+            'OZ': 0.0283495,              # Ounce
+            'TON': 1000.0,                # Metric Ton
+            'MT': 1000.0,                 # Metric Ton
+            'STONE': 6.35029,             # Stone (UK)
+            'QUINTAL': 100.0,             # Quintal
+            'GRAIN': 0.00006479891,       # Grain
+            'CARAT': 0.0002,              # Carat
+            'MG': 0.000001,               # Milligram
+            'UG': 0.000000001,            # Microgram
+            
+            # Imperial tons
+            'SHORTTON': 907.185,          # US short ton
+            'LONGTON': 1016.05,           # UK long ton
+            
+            # Additional weight units
+            'DRAM': 0.0017718,            # Dram
+            'SCRUPLE': 0.001296,          # Scruple
+            'PENNYWEIGHT': 0.001555,      # Pennyweight
+            'SLUG': 14.5939,              # Slug
+            'HUNDREDWEIGHT': 50.8023,     # Hundredweight (UK)
+            'USHUNDREDWEIGHT': 45.3592,   # Hundredweight (US)
+        }
+        
+        return conversion_factors.get(unit, None)
+    
     def convert_business_quantity_to_kg(self, df, columns):
-        """Convert business quantity to KG"""
+        """Convert business quantity to KG with robust unit recognition"""
         self.log("🔄 Starting unit conversion...")
         
         # Create a copy to avoid modifying original
@@ -328,44 +606,80 @@ class BusinessQuantityConverter:
         
         converted_count = 0
         total_rows = len(df_result)
+        unit_stats = {}  # Track conversion statistics
         
         for index, row in df_result.iterrows():
             # Get values
-            unit_of_weight = str(row.get(columns['unit_of_weight'], '-')).upper().strip()
+            raw_unit = row.get(columns['unit_of_weight'], '-')
+            normalized_unit = self.normalize_unit(raw_unit)
             business_quantity = pd.to_numeric(row.get(columns['business_quantity'], 0), errors='coerce') or 0
             unit_price = pd.to_numeric(row.get(columns['unit_price'], 0), errors='coerce') or 0 if columns['unit_price'] else 0
             width = pd.to_numeric(row.get(columns['width'], 0), errors='coerce') or 0 if columns['width'] else 0
             gsm = pd.to_numeric(row.get(columns['gsm'], 0), errors='coerce') or 0 if columns['gsm'] else 0
             
             result = '-'
+            conversion_method = 'none'
             
-            # Conversion logic
-            if unit_of_weight in ['GRM', 'GR'] and business_quantity > 0:
-                result = business_quantity * 1000  # GR to KG
-            elif unit_of_weight in ['KG', 'KGM', 'KGS', 'K'] and business_quantity > 0:
-                result = business_quantity  # Already in KG
-            elif unit_of_weight == 'LBS' and business_quantity > 0:
-                result = business_quantity * 0.453592  # LBS to KG
-            elif business_quantity > 0 and unit_price > 0 and width > 0 and gsm > 0:
-                if unit_of_weight == 'MTR':
-                    result = (unit_price * 1000) / (width * gsm)
-                elif unit_of_weight in ['MTK', 'MTR2']:
-                    result = (unit_price * 1000) / gsm
-                elif unit_of_weight == 'YD':
-                    result = ((unit_price / 0.9144) * 1000) / (width * gsm)
-                elif unit_of_weight in ['ROL', 'ROLL']:
-                    result = business_quantity / gsm
+            # Track unit usage
+            if normalized_unit not in unit_stats:
+                unit_stats[normalized_unit] = {'count': 0, 'converted': 0}
+            unit_stats[normalized_unit]['count'] += 1
             
-            df_result.at[index, 'BUSINESS QUANTITY (KG)'] = result
+            if business_quantity <= 0:
+                result = '-'
+                conversion_method = 'invalid_quantity'
+            else:
+                # Try direct conversion first
+                conversion_factor = self.get_conversion_factor(normalized_unit)
+                
+                if conversion_factor is not None:
+                    # Direct conversion
+                    result = business_quantity * conversion_factor
+                    conversion_method = 'direct'
+                    unit_stats[normalized_unit]['converted'] += 1
+                
+                elif normalized_unit in ['MTR', 'MTK', 'YD', 'ROLL'] and unit_price > 0 and gsm > 0:
+                    # Complex conversions requiring additional parameters
+                    if normalized_unit == 'MTR' and width > 0:
+                        result = (unit_price * 1000) / (width * gsm)
+                        conversion_method = 'mtr_complex'
+                        unit_stats[normalized_unit]['converted'] += 1
+                    elif normalized_unit == 'MTK':
+                        result = (unit_price * 1000) / gsm
+                        conversion_method = 'mtk_complex'
+                        unit_stats[normalized_unit]['converted'] += 1
+                    elif normalized_unit == 'YD' and width > 0:
+                        result = ((unit_price / 0.9144) * 1000) / (width * gsm)
+                        conversion_method = 'yd_complex'
+                        unit_stats[normalized_unit]['converted'] += 1
+                    elif normalized_unit == 'ROLL':
+                        result = business_quantity / gsm
+                        conversion_method = 'roll_complex'
+                        unit_stats[normalized_unit]['converted'] += 1
+                    else:
+                        conversion_method = 'missing_parameters'
+                else:
+                    conversion_method = 'unsupported_unit'
             
-            if result != '-':
+            # Store result
+            if isinstance(result, (int, float)) and result != '-':
+                df_result.at[index, 'BUSINESS QUANTITY (KG)'] = round(result, 6)
                 converted_count += 1
+            else:
+                df_result.at[index, 'BUSINESS QUANTITY (KG)'] = '-'
             
             # Progress update
             if index % 50 == 0 and index > 0:
                 self.log(f"  Progress: {index}/{total_rows} rows processed...")
         
-        self.log(f"✅ Conversion completed: {converted_count}/{total_rows} rows converted")
+        # Log conversion statistics
+        self.log(f"\n📊 Conversion Statistics:")
+        for unit, stats in unit_stats.items():
+            if stats['count'] > 0:
+                success_rate = (stats['converted'] / stats['count']) * 100
+                self.log(f"  {unit}: {stats['converted']}/{stats['count']} converted ({success_rate:.1f}%)")
+        
+        self.log(f"\n✅ Conversion completed: {converted_count}/{total_rows} rows converted")
         return df_result
 
 def main():
