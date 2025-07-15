@@ -219,6 +219,10 @@ Formula: ((Unit Price ÷ 0.9144) × 1000) ÷ (Width × GSM)
 MTK, MTR2, M2, SQM, SQMETER, SQUAREMETER
 Formula: (Unit Price × 1000) ÷ GSM
 
+📐 SQUARE FEET UNITS (Need: Business Quantity, GSM):
+SQF, SQFT, SQUAREFEET, SQUAREFOOT
+Formula: Business Quantity × 0.092903 × GSM ÷ 1000
+
 📐 ROLL UNITS (Need: Business Quantity, GSM):
 ROL, ROLL, ROLLS
 Formula: Business Quantity ÷ GSM
@@ -226,7 +230,7 @@ Formula: Business Quantity ÷ GSM
 REQUIRED COLUMNS FOR COMPLEX CONVERSION:
 • Unit Price (USD): Required for MTR, YD, MTK calculations
 • Width: Required for MTR and YD calculations  
-• GSM: Required for all complex conversions
+• GSM: Required for all complex conversions (MTR, YD, MTK, SQF, ROLL)
 • Business Quantity: Always required
 
 CONVERSION PRIORITY:
@@ -277,6 +281,11 @@ Example data for ROLL conversion:
 • GSM: 250
 • Result: 5 ÷ 250 = 0.02 KG
 
+Example data for SQF conversion:
+• Business Quantity: 1000 SQF
+• GSM: 200
+• Result: 1000 × 0.092903 × 200 ÷ 1000 = 18.5806 KG
+
 🔧 UNIT RECOGNITION EXAMPLES:
 Input → Recognized As:
 • "kg" → KG
@@ -289,6 +298,8 @@ Input → Recognized As:
 • "ounces" → OZ
 • "mtr" → MTR
 • "meters" → MTR
+• "sqf" → SQF
+• "square feet" → SQF
 
 ❌ COMMON ISSUES:
 • Empty business quantity → Result: "-"
@@ -548,6 +559,9 @@ Input → Recognized As:
             'MTK': 'MTK', 'MTR2': 'MTK', 'M2': 'MTK', 'SQM': 'MTK', 'SQMETER': 'MTK',
             'SQUAREMETER': 'MTK', 'SQUAREMETERS': 'MTK',
             
+            'SQF': 'SQF', 'SQFT': 'SQF', 'SQUAREFEET': 'SQF', 'SQUAREFOOT': 'SQF',
+            'SQFEET': 'SQF', 'SF': 'SQF',
+            
             'YD': 'YD', 'YARD': 'YD', 'YARDS': 'YD', 'YDS': 'YD',
             
             'ROL': 'ROLL', 'ROLL': 'ROLL', 'ROLLS': 'ROLL',
@@ -638,19 +652,24 @@ Input → Recognized As:
                     conversion_method = 'direct'
                     unit_stats[normalized_unit]['converted'] += 1
                 
-                elif normalized_unit in ['MTR', 'MTK', 'YD', 'ROLL'] and unit_price > 0 and gsm > 0:
+                elif normalized_unit in ['MTR', 'MTK', 'YD', 'SQF', 'ROLL'] and gsm > 0:
                     # Complex conversions requiring additional parameters
-                    if normalized_unit == 'MTR' and width > 0:
+                    if normalized_unit == 'MTR' and width > 0 and unit_price > 0:
                         result = (unit_price * 1000) / (width * gsm)
                         conversion_method = 'mtr_complex'
                         unit_stats[normalized_unit]['converted'] += 1
-                    elif normalized_unit == 'MTK':
+                    elif normalized_unit == 'MTK' and unit_price > 0:
                         result = (unit_price * 1000) / gsm
                         conversion_method = 'mtk_complex'
                         unit_stats[normalized_unit]['converted'] += 1
-                    elif normalized_unit == 'YD' and width > 0:
+                    elif normalized_unit == 'YD' and width > 0 and unit_price > 0:
                         result = ((unit_price / 0.9144) * 1000) / (width * gsm)
                         conversion_method = 'yd_complex'
+                        unit_stats[normalized_unit]['converted'] += 1
+                    elif normalized_unit == 'SQF':
+                        # SQF conversion: SQF * 0.092903 * GSM / 1000
+                        result = business_quantity * 0.092903 * gsm / 1000
+                        conversion_method = 'sqf_complex'
                         unit_stats[normalized_unit]['converted'] += 1
                     elif normalized_unit == 'ROLL':
                         result = business_quantity / gsm
