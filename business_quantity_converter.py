@@ -505,6 +505,36 @@ Input → Recognized As:
         self.progress.stop()
         self.process_btn.config(state="normal")
     
+    def extract_first_value(self, value_string):
+        """Extract the first value from a comma-separated string"""
+        if not value_string or pd.isna(value_string):
+            return None
+        
+        # Convert to string and split by comma
+        str_value = str(value_string).strip()
+        if ',' in str_value:
+            first_value = str_value.split(',')[0].strip()
+        else:
+            first_value = str_value
+        
+        return first_value if first_value else None
+    
+    def clean_gsm_operators(self, gsm_value):
+        """Remove operators (>, <, >=, <=) from GSM value and return the numeric value"""
+        if not gsm_value or pd.isna(gsm_value):
+            return None
+        
+        # Convert to string
+        str_value = str(gsm_value).strip()
+        
+        # Remove operators: >=, <=, >, <
+        import re
+        # Pattern to match operators at the beginning of the string
+        pattern = r'^(>=|<=|>|<)\s*'
+        cleaned_value = re.sub(pattern, '', str_value)
+        
+        return cleaned_value if cleaned_value else None
+
     def normalize_unit(self, unit_string):
         """Normalize unit string to standard format"""
         if not unit_string or pd.isna(unit_string):
@@ -628,8 +658,17 @@ Input → Recognized As:
             normalized_unit = self.normalize_unit(raw_unit)
             business_quantity = pd.to_numeric(row.get(columns['business_quantity'], 0), errors='coerce') or 0
             unit_price = pd.to_numeric(row.get(columns['unit_price'], 0), errors='coerce') or 0 if columns['unit_price'] else 0
-            width = pd.to_numeric(row.get(columns['width'], 0), errors='coerce') or 0 if columns['width'] else 0
-            gsm = pd.to_numeric(row.get(columns['gsm'], 0), errors='coerce') or 0 if columns['gsm'] else 0
+            
+            # Process Width: extract first value from comma-separated string
+            width_raw = row.get(columns['width'], 0) if columns['width'] else 0
+            width_first = self.extract_first_value(width_raw) if width_raw else None
+            width = pd.to_numeric(width_first, errors='coerce') or 0 if width_first else 0
+            
+            # Process GSM: extract first value and remove operators
+            gsm_raw = row.get(columns['gsm'], 0) if columns['gsm'] else 0
+            gsm_first = self.extract_first_value(gsm_raw) if gsm_raw else None
+            gsm_cleaned = self.clean_gsm_operators(gsm_first) if gsm_first else None
+            gsm = pd.to_numeric(gsm_cleaned, errors='coerce') or 0 if gsm_cleaned else 0
             
             result = '-'
             conversion_method = 'none'

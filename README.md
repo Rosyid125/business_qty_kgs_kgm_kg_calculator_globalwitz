@@ -10,40 +10,77 @@ Aplikasi GUI untuk mengkonversi Business Quantity ke Kilogram dengan berbagai sa
 - **Real-time Progress** - Monitor proses konversi
 - **Error Handling** - Penanganan error yang robust
 - **Multiple Unit Support** - Mendukung berbagai satuan berat
+- **🆕 Smart Data Processing** - Otomatis ekstrak nilai pertama dari data comma-separated
+- **🆕 Operator Removal** - Hapus operator (>, <, >=, <=) dari nilai GSM
+
+## 🔥 Fitur Baru (Latest Update)
+
+### 1. **Comma-Separated Values Support**
+
+Program sekarang dapat menangani kolom Width dan GSM yang berisi multiple values dipisahkan koma:
+
+- **Input**: `"67.80,50,40"` → **Output**: `67.80` (nilai pertama)
+- **Input**: `"150,200,250"` → **Output**: `150` (nilai pertama)
+
+### 2. **GSM Operator Removal**
+
+Otomatis menghapus operator matematika dari nilai GSM:
+
+- **Input**: `">40"` → **Output**: `40`
+- **Input**: `"<=30"` → **Output**: `30`
+- **Input**: `">=25"` → **Output**: `25`
+- **Input**: `"<50"` → **Output**: `50`
+
+### 3. **Combined Processing Example**
+
+Untuk case kompleks dengan comma + operator:
+
+- **Input**: `"<=30,35,40"` → **Process**: ambil pertama (`"<=30"`) → hapus operator → **Output**: `30`
+- **Input**: `">40,50,60"` → **Process**: ambil pertama (`">40"`) → hapus operator → **Output**: `40`
+
+> 📖 **Dokumentasi lengkap**: Lihat `NEW_FEATURES_DOCUMENTATION.md` untuk detail implementasi
 
 ## 📋 Satuan yang Didukung
 
 ### Direct Conversion (Konversi Langsung - Tanpa parameter tambahan):
 
 #### Kilogram Group:
+
 - **KG, KGS, KGM, K, KILO, KILOS, KILOGRAM, KILOGRAMME** → Basis utama (faktor: 1.0)
 
 #### Gram Group:
+
 - **G, GR, GRM, GRAM, GRAMS, GRAMME, GM, GMS** → ÷ 1000 (gram ke kilogram)
 
 #### Pound Group:
+
 - **LB, LBS, POUND, POUNDS, PND, PNDS, LBM** → × 0.453592 (pounds ke kilogram)
 
 #### Ounce Group:
+
 - **OZ, OUNCE, OUNCES, ONZ** → × 0.0283495 (ounces ke kilogram)
 
 #### Ton Group:
+
 - **TON, TONS, TONNE, TONNES, T** → × 1000 (metric ton ke kilogram)
 - **MT, METRICTON, METRICTONS** → × 1000 (metric ton ke kilogram)
 - **SHORTTON** → × 907.185 (US short ton ke kilogram)
 - **LONGTON** → × 1016.05 (UK long ton ke kilogram)
 
 #### Stone & Imperial Units:
+
 - **ST, STONE, STONES** → × 6.35029 (stone UK ke kilogram)
 - **QUINTAL, QUINTALS, Q, QTL** → × 100 (quintal ke kilogram)
 
 #### Precision Units:
+
 - **GRAIN, GRAINS, GRN** → × 0.00006479891 (grain ke kilogram)
 - **CARAT, CARATS, CT, CAR** → × 0.0002 (carat ke kilogram)
 - **MG, MILLIGRAM, MILLIGRAMS** → × 0.000001 (milligram ke kilogram)
 - **UG, MCG, MICROGRAM, MICROGRAMS** → × 0.000000001 (microgram ke kilogram)
 
 #### Additional Imperial Units:
+
 - **DRAM** → × 0.0017718 (dram ke kilogram)
 - **SCRUPLE** → × 0.001296 (scruple ke kilogram)
 - **PENNYWEIGHT** → × 0.001555 (pennyweight ke kilogram)
@@ -54,6 +91,7 @@ Aplikasi GUI untuk mengkonversi Business Quantity ke Kilogram dengan berbagai sa
 ### Complex Conversion (Butuh Parameter Tambahan):
 
 #### Linear & Area Units:
+
 - **MTR, METER, METRE, M, MTS** → Formula: (Unit Price × 1000) ÷ (Width × GSM)
 - **MTK, MTR2, M2, SQM, SQMETER** → Formula: (Unit Price × 1000) ÷ GSM
 - **YD, YARD, YARDS, YDS** → Formula: ((Unit Price ÷ 0.9144) × 1000) ÷ (Width × GSM)
@@ -64,19 +102,23 @@ Aplikasi GUI untuk mengkonversi Business Quantity ke Kilogram dengan berbagai sa
 Aplikasi sekarang mendukung **pengenalan satuan yang sangat fleksibel**:
 
 #### Contoh Variasi yang Didukung:
+
 - **"kg"** = **"KG"** = **"kgs"** = **"K"** = **"kilo"** = **"kilogram"**
 - **"lb"** = **"LB"** = **"lbs"** = **"LBS"** = **"pound"** = **"pounds"**
 - **"g"** = **"gr"** = **"gram"** = **"grams"** = **"grm"** = **"gms"**
 - **"oz"** = **"ounce"** = **"ounces"** = **"onz"**
 
 #### Normalisasi Otomatis:
+
 - ✅ **Case insensitive** - "kg", "KG", "Kg" semua sama
-- ✅ **Spasi diabaikan** - "k g", "kg", " kg " semua sama  
+- ✅ **Spasi diabaikan** - "k g", "kg", " kg " semua sama
 - ✅ **Tanda baca diabaikan** - "k.g", "k-g", "kg" semua sama
 - ✅ **Variasi spelling** - "kilogram", "kilogramme", "kilo" semua dikenali
 
 #### Statistik Konversi:
+
 Aplikasi akan menampilkan laporan detail tentang:
+
 - Berapa banyak dari setiap unit yang berhasil dikonversi
 - Tingkat keberhasilan konversi per unit
 - Unit yang tidak dikenali atau gagal dikonversi
@@ -84,16 +126,19 @@ Aplikasi akan menampilkan laporan detail tentang:
 ## 🛠️ Installation & Setup
 
 ### Prerequisites
+
 - Windows 10/11
 - Python 3.7+ (Download dari https://python.org)
 
 ### Quick Start
+
 1. **Download** semua files ke folder project
 2. **Double-click** `start_converter.bat` untuk menjalankan aplikasi
 3. **Atau double-click** `run_tests.bat` untuk menjalankan test suite
 4. Script akan otomatis install dependencies dan menjalankan aplikasi
 
 ### Manual Installation
+
 ```bash
 # Install dependencies
 pip install -r requirements.txt
@@ -106,6 +151,7 @@ python business_quantity_converter.py
 ```
 
 ## 📁 Folder Structure
+
 ```
 project_folder/
 ├── business_quantity_converter.py  # Main application
@@ -119,6 +165,7 @@ project_folder/
 ## 🎯 How to Use
 
 ### Step 1: Prepare Excel Files
+
 1. Place your Excel files (.xlsx or .xls) in the `input/` folder
 2. Files should have columns for:
    - Unit of Weight (Required)
@@ -128,14 +175,17 @@ project_folder/
    - GSM (Optional, needed for complex calculations)
 
 ### Step 2: Run Application
+
 1. Double-click `run_converter.bat` or run `python business_quantity_converter.py`
 2. The GUI will open
 
 ### Step 3: Select Sheet and Map Columns
+
 1. **Select Sheet** from dropdown (this will be the sheet to process)
 2. **Map Columns** to the required fields (columns update automatically)
 
 ### Step 4: Start Conversion
+
 1. Click **"Start Conversion"** button
 2. Monitor progress in the log area
 3. Converted file will be saved in `output/` folder with prefix `converted_`
@@ -143,17 +193,20 @@ project_folder/
 ## 🔧 GUI Components
 
 ### File Selection
+
 - Lists all Excel files in input folder
 - Click "Refresh Files" to update list
 - Select file to load its sheets
 
 ### Sheet Selection
+
 - **Single Sheet Processing**: Choose one sheet from dropdown to process
 - **Dynamic Column Loading**: Columns update automatically when sheet is selected
 - **Smart Filtering**: Only shows sheets with valid data
 - **Single Workflow**: Select sheet → Map columns → Process
 
 ### Column Mapping
+
 - **Auto-Update**: Columns refresh automatically when sheet is changed
 - **Unit of Weight**: Required column containing unit codes
 - **Business Quantity**: Required column with quantity values
@@ -162,6 +215,7 @@ project_folder/
 - **GSM**: Optional, needed for complex unit calculations
 
 ### Process Log
+
 - Real-time feedback during conversion
 - Shows progress, errors, and results
 - Scrollable text area for long processes
@@ -192,24 +246,30 @@ project_folder/
 ### Common Issues:
 
 1. **"No Excel files found"**
+
    - Make sure .xlsx or .xls files are in the `input/` folder
 
 2. **"No valid sheets found"**
+
    - Check if sheets have data
    - Some sheets might be hidden or empty
 
 3. **"Python not found"**
+
    - Install Python from https://python.org
    - Make sure Python is added to PATH
 
 4. **"Permission denied"**
+
    - Close Excel if the file is open
    - Check folder permissions
 
 5. **"Module not found"**
+
    - Run: `pip install -r requirements.txt`
 
 6. **"Unit not recognized"**
+
    - Check the conversion statistics in the log
    - Unit might have unusual spelling or format
    - Refer to supported units list above
@@ -222,7 +282,7 @@ project_folder/
 ### Unit Recognition Tips:
 
 - **Case doesn't matter**: "kg", "KG", "Kg" all work
-- **Spaces are ignored**: "k g", " kg ", "kg" all work  
+- **Spaces are ignored**: "k g", " kg ", "kg" all work
 - **Punctuation is ignored**: "k.g", "k-g", "kg" all work
 - **Common abbreviations**: "lb" = "lbs", "g" = "gr" = "gram"
 - **Check logs**: The app shows which units were recognized and conversion rates
@@ -237,10 +297,12 @@ project_folder/
 ## 🧪 Testing & Validation
 
 ### Test Files Included:
+
 - **`test_units.py`** - Unit tests for normalization and conversion factors
 - **`create_sample_excel.py`** - Generates comprehensive test Excel file
 
 ### To Test the Application:
+
 ```bash
 # Generate sample Excel file with 47 test cases
 python create_sample_excel.py
@@ -253,7 +315,9 @@ python business_quantity_converter.py
 ```
 
 ### Sample Test Data:
+
 The generated test file includes:
+
 - **47 test records** with various unit formats
 - **Direct conversions**: KG, G, LBS, OZ, TON, MG, CARAT, STONE, etc.
 - **Complex conversions**: MTR, MTK, YD, ROLL with required parameters
@@ -272,7 +336,7 @@ The generated test file includes:
 ✅ **Robust Unit Recognition** - Smart unit detection with 50+ unit variants  
 ✅ **Comprehensive Weight Units** - Support for all major weight measurement systems  
 ✅ **Conversion Statistics** - Detailed reporting of conversion success rates  
-✅ **Flexible Input** - Case-insensitive, space-tolerant unit recognition  
+✅ **Flexible Input** - Case-insensitive, space-tolerant unit recognition
 
 ## 📝 Version History
 
