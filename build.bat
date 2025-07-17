@@ -1,6 +1,9 @@
 @echo off
 setlocal EnableDelayedExpansion
 
+REM Add Python user scripts to PATH
+set "PATH=%APPDATA%\Python\Python313\Scripts;%PATH%"
+
 echo ===============================================
 echo    Building Business Quantity Converter
 echo                 (OneDir Mode)
@@ -36,7 +39,7 @@ if exist *.spec del /q *.spec
 
 REM [4/5] Build executable with PyInstaller
 echo Building standalone executable...
-pyinstaller --onedir --windowed --name="BusinessQuantityConverter" --add-data="README.md;." business_quantity_converter.py
+"%APPDATA%\Python\Python313\Scripts\pyinstaller.exe" --onedir --windowed --name="BusinessQuantityConverter" --add-data="README.md;." business_quantity_converter.py
 
 if errorlevel 1 (
     echo ❌ Build failed!
